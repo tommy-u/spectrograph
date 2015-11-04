@@ -10,7 +10,8 @@ def update(*args):
 
     # Update lines
     for i in range(len(data)):
-       lines[i].set_ydata(i + G * data[i])
+#       lines[i].set_ydata(i + G * data[i])
+        lines[i].set_ydata(i + 1.5 * data[i])
 #        lines[i].set_ydata(i + data[i])
     return lines
 
@@ -40,9 +41,6 @@ for i in range(len(data)):
 
 # Set y limit (or first line is cropped because of thickness)
 ax.set_ylim(-1, 53)
-
-#ax.set_xticks([])
-#ax.set_yticks([])
 
 # Construct the animation, using the update function as the animation director
 anim = animation.FuncAnimation(fig, update, interval=1)
