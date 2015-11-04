@@ -4,17 +4,20 @@ animated graphs and an audio signal.
 """
 
 import numpy as np
+#for animation
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
 
-LEN_TRACE_VIS = 15	#How much of trace to show
-LEN_TRACE_WIN = 5 	#Size of the FFT window
+LEN_TRACE_VIS = 256	#How much of trace to show
+LEN_TRACE_WIN = 64 	#Size of the FFT window
 SPEC_MAX_TIME = 10  #Time to show on spectrogram
 
 LEN_NON_WIN = LEN_TRACE_VIS - LEN_TRACE_WIN	
 
-assert( LEN_TRACE_VIS > 0 )
-assert( LEN_TRACE_WIN > 0 )
-assert( SPEC_MAX_TIME > 0 )
-assert( LEN_TRACE_WIN <= LEN_TRACE_VIS )
+assert LEN_TRACE_VIS > 0 
+assert LEN_TRACE_WIN > 0 
+assert SPEC_MAX_TIME > 0 
+assert LEN_TRACE_WIN <= LEN_TRACE_VIS 
 
 def initialize( ):
 	"""
@@ -22,6 +25,7 @@ def initialize( ):
 	Returns them in a dictionary.
 	"""
 	
+
 	#Signal
 	the_sig = get_the_sig()
 	max_sig_val = np.amax( the_sig )
@@ -54,13 +58,14 @@ def get_the_sig():
 	"""
 	Collects the signal.
 	"""
-	return np.fromiter( (x%100 for x in range(1,50)) , int )
+	return np.fromiter( (x%100 for x in range(1,5000)) , int )
 
-def engine(data):
+def engine(i,data):
 	#standin for animation
-	printout(data)
+	line.set_ydata( data['trace_vis'] )
+	#printout(data)
 
-	input('enter to continue')
+	#input('enter to continue')
 
 	#Remove oldest data 
 	data['trace_win'] = np.delete( data['trace_win'], 0 )
@@ -91,23 +96,27 @@ def engine(data):
 	data['spec'] = np.c_[data['spec'], data['trace_win_fft']]
 
 def printout(data):
-	print( 'tone   ' , data['tone']      )
-	print( 'sig    ' , data['the_sig']   )
-	print( 'vis:   ' , data['trace_vis'] )
-	print( 'window ' , data['trace_win'] )
-	print( '\n     ' , data['spec']      )
+	for key, value in data.items():
+		print(key, value)
+
+def animation():
+	#For animation
+	fig, ax = plt.subplots()
+	x = np.arange(0, LEN_TRACE_VIS)
+	line, = ax.plot(x, np.sin(x))
+	LWR_BND = -1
+	ax.set_ylim(LWR_BND, data['max_sig_val']+1)
+	ax.plot((LEN_TRACE_WIN, LEN_TRACE_WIN ), (LWR_BND, data['max_sig_val']+1 ), 'g-')
+	#For backend
+	data = initialize()
+	
+	#data is sent in as a list because it's going to be unpacked.
+	animation.FuncAnimation(fig, engine, fargs= [data], interval=10)
+	
+	plt.show()
 
 data = initialize()
-while(True):
-	engine(data)
-
-
-
-
-
-
-
-
+animation()
 
 
 
