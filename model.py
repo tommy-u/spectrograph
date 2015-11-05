@@ -63,7 +63,7 @@ def engine(i,data):
 	
 	#Trace animation
 	
-	#line_t.set_ydata( data['trace_vis'] )
+	line.set_ydata( data['trace_vis'] )
 
 	for i in range(len(lines)):
 		lines[i].set_ydata( data['spec'][i] + 4*i )
@@ -118,17 +118,20 @@ def printout(data):
 data = initialize()
 
 """
+
 #For trace animation 
-fig_t, ax_t = plt.subplots()
+fig, ax = plt.subplots()
 
 x = np.arange(0, LEN_TRACE_VIS)
-line_t, = ax_t.plot(x, np.sin(x))
+line, = ax.plot(x, np.sin(x))
 LWR_BND = -1
-ax_t.set_ylim(LWR_BND, data['max_sig_val']+1)
-ax_t.plot((LEN_TRACE_WIN, LEN_TRACE_WIN ), (LWR_BND, data['max_sig_val']+1 ), 'g-')
+ax.set_ylim(LWR_BND, data['max_sig_val']+1)
+ax.plot((LEN_TRACE_WIN, LEN_TRACE_WIN ), (LWR_BND, data['max_sig_val']+1 ), 'g-')
 
 #data is sent in as a list because it's going to be unpacked.
-animation.FuncAnimation(fig_t, engine, fargs= [data], interval=10)
+animation.FuncAnimation(fig, engine, fargs= [data], interval=10)
+
+
 """
 
 
@@ -150,8 +153,7 @@ LWR_BND = -1
 ax.set_ylim(LWR_BND, 50)
 
 
-
-anim = animation.FuncAnimation(fig, engine, fargs=([data]), interval=10)
+anim = animation.FuncAnimation(fig, engine, fargs=([data]), interval=30)
 
 plt.show()
 
