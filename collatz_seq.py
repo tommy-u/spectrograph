@@ -10,5 +10,5 @@ def collatz_sequence(x):
     else:
         collatz_sequence((x * 3) + 1)
 
-collatz_sequence(217)
-print (seq)
+collatz_sequence(63728127)
+print (len(seq))

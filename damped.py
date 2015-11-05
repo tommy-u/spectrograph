@@ -19,25 +19,17 @@ f0.suptitle("Oscillation decay", fontsize=12)
 ax01 = subplot2grid((2, 1), (0, 0))
 ax03 = subplot2grid((2, 1), (1, 0))
 
-#tight_layout()
-
-# Set titles of subplots
-ax01.set_title('Position vs Time')
-ax03.set_title('Position and Velocity vs Time')
 
 # set y-limits
 ax01.set_ylim(0,2)
 ax03.set_ylim(-0,5)
 
 
-# sex x-limits
+# set x-limits
 ax01.set_xlim(0,5.0)
 ax03.set_xlim(0,5.0)
 
 
-# Turn on grids
-ax01.grid(True)
-ax03.grid(True)
 
 # set label names
 ax01.set_xlabel("x")

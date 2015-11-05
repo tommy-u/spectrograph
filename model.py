@@ -26,7 +26,10 @@ def initialize( ):
 	"""
 
 	#Signal
-	the_sig = get_the_sig()
+	# the_sig = get_the_sig()
+	#longest sequence up to 100 M. 949 steps
+	the_sig = get_the_collatz(63728127)
+	
 	max_sig_val = np.amax( the_sig )
 
 	#Spectrogram 2d array
@@ -59,20 +62,27 @@ def get_the_sig():
 	"""
 	return np.fromiter( (x%100 for x in range(1,5000)) , int )
 
+def get_the_collatz(x):
+	seq = []
+	seq = collatz_sequence(seq, x)
+	return np.asarray(seq)
+
+def collatz_sequence(seq, x):
+	seq.append(x)
+	if x == 1:
+		return seq
+	x = x/2 if (x % 2 == 0)  else x*3+1
+	return collatz_sequence(seq, x)
+
 def engine(i,data):
 	
-	#Trace animation
-	
-	line.set_ydata( data['trace_vis'] )
+	#Trace animation.
+	line_t.set_ydata( data['trace_vis'] )
 
+	#Spectrogram animation.
 	for i in range(len(lines)):
 		lines[i].set_ydata( data['spec'][i] + 4*i )
 
-	#standin for animation
-#	printout(data)
-
-	#for pausing between frames
-#	input('enter to continue')
 
 	#Remove oldest data 
 	data['trace_win'] = np.delete( data['trace_win'], 0 )
@@ -117,27 +127,19 @@ def printout(data):
 #For backend
 data = initialize()
 
-"""
+fig  = plt.figure(figsize=(12, 10), facecolor='brown')
+ax_t = plt.subplot2grid((2, 1), (0, 0))
+ax   = plt.subplot2grid((2, 1), (1, 0))
 
 #For trace animation 
-fig, ax = plt.subplots()
-
 x = np.arange(0, LEN_TRACE_VIS)
-line, = ax.plot(x, np.sin(x))
+line_t, = ax_t.plot(x, np.sin(x))
 LWR_BND = -1
-ax.set_ylim(LWR_BND, data['max_sig_val']+1)
-ax.plot((LEN_TRACE_WIN, LEN_TRACE_WIN ), (LWR_BND, data['max_sig_val']+1 ), 'g-')
 
-#data is sent in as a list because it's going to be unpacked.
-animation.FuncAnimation(fig, engine, fargs= [data], interval=10)
+ax_t.set_ylim(LWR_BND, data['max_sig_val']+1)
 
+ax_t.plot((LEN_TRACE_WIN, LEN_TRACE_WIN ), (LWR_BND, data['max_sig_val']+1 ), 'g-')
 
-"""
-
-
-fig = plt.figure(figsize=(8, 8), facecolor='brown')
-ax = plt.subplot(frameon=False)
-#data = np.zeros((LEN_TRACE_WIN, SPEC_MAX_TIME))
 X = np.linspace(0, 1, SPEC_MAX_TIME)
 
 lines = []
@@ -148,9 +150,9 @@ for i in range(len(data['spec'])):
 	line, = ax.plot(xscale*X, 2*i + data['spec'][i], color="white", lw=lw)
 	lines.append(line)
 
-LWR_BND = -1
+
 #ax.set_ylim(LWR_BND, data['max_sig_val']+1)
-ax.set_ylim(LWR_BND, 50)
+ax.set_ylim(LWR_BND, 100)
 
 
 anim = animation.FuncAnimation(fig, engine, fargs=([data]), interval=30)
@@ -159,7 +161,6 @@ plt.show()
 
 # while(True):
 # 	engine(1,data)
-
 
 
 
