@@ -9,9 +9,9 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
 LEN_TRACE_VIS = 256	#How much of trace to show
-LEN_TRACE_WIN = 20 	#Size of the FFT window
+LEN_TRACE_WIN = 30	#Size of the FFT window
 SPEC_MAX_TIME = 50  #Time to show on spectrogram
-
+SPREAD        = 40	#Distance between spec lines
 LEN_NON_WIN = LEN_TRACE_VIS - LEN_TRACE_WIN	
 
 assert LEN_TRACE_VIS > 0 
@@ -29,7 +29,10 @@ def initialize( ):
 	# the_sig = get_the_sig()
 	#longest sequence up to 100 M. 949 steps
 	the_sig = get_the_collatz(63728127)
-	
+	the_sig = np.log(the_sig)
+	#double length
+	the_sig = np.concatenate( [the_sig, the_sig] )
+
 	max_sig_val = np.amax( the_sig )
 
 	#Spectrogram 2d array
@@ -74,15 +77,15 @@ def collatz_sequence(seq, x):
 	x = x/2 if (x % 2 == 0)  else x*3+1
 	return collatz_sequence(seq, x)
 
-def engine(i,data):
-	
+def engine(i,data):	
 	#Trace animation.
 	line_t.set_ydata( data['trace_vis'] )
 
 	#Spectrogram animation.
 	for i in range(len(lines)):
-		lines[i].set_ydata( data['spec'][i] + 4*i )
-
+		lines[i].set_ydata( data['spec'][i] + SPREAD * i )
+	# if (len(data['the_sig']) > 0):
+	# 	print(data['the_sig'][0])
 
 	#Remove oldest data 
 	data['trace_win'] = np.delete( data['trace_win'], 0 )
@@ -108,17 +111,13 @@ def engine(i,data):
 	#calc fft window sig
 	data['trace_win_fft'] = np.abs( np.fft.rfft ( data['trace_win'] ) )
 	
-	#probably throw out first elem (vertical offset)
-	
-#	data['trace_win_fft'] = data['trace_win_fft'] / np.ptp(data['trace_win_fft'])
-	data['trace_win_fft'] = np.log( data['trace_win_fft'] )
-	#Append as col. 
-	#Total kludge to remove dominating first term
-#	data['trace_win_fft'][0] = 0
-	data['spec'] = np.c_[data['spec'], data['trace_win_fft']]
-	#data['spec'][0] = np.zeros(len(data['spec'][0]))
-	
-	
+	#This is only to make visualization easier.
+	#log of magnitudes
+#	data['trace_win_fft'] = np.log( data['trace_win_fft'] )
+	data['trace_win_fft'] = data['trace_win_fft'] 
+
+	#Fill every element of the spec with one element from the fft.
+	data['spec'] = np.c_[data['spec'], data['trace_win_fft']]	
 
 def printout(data):
 	for key, value in data.items():
@@ -128,17 +127,19 @@ def printout(data):
 data = initialize()
 
 fig  = plt.figure(figsize=(12, 10), facecolor='brown')
-ax_t = plt.subplot2grid((2, 1), (0, 0))
-ax   = plt.subplot2grid((2, 1), (1, 0))
+
+ax_t = plt.subplot2grid( (2,1), (0,0) )
+ax   = plt.subplot2grid( (2,1), (1,0) )
 
 #For trace animation 
-x = np.arange(0, LEN_TRACE_VIS)
-line_t, = ax_t.plot(x, np.sin(x))
+#x = np.arange(0, LEN_TRACE_VIS)
+line_t, = ax_t.plot(np.zeros(LEN_TRACE_VIS), color="blue")
+
 LWR_BND = -1
-
 ax_t.set_ylim(LWR_BND, data['max_sig_val']+1)
-
+#green line specifying where transform window occurs
 ax_t.plot((LEN_TRACE_WIN, LEN_TRACE_WIN ), (LWR_BND, data['max_sig_val']+1 ), 'g-')
+
 
 X = np.linspace(0, 1, SPEC_MAX_TIME)
 
@@ -147,21 +148,17 @@ for i in range(len(data['spec'])):
 	#perspective trick
 	xscale = 1 - i / 200
 	lw = 1.5 - i / 100
-	line, = ax.plot(xscale*X, 2*i + data['spec'][i], color="white", lw=lw)
+	if i == 0:
+		line, = ax.plot(xscale*X, 2*i + data['spec'][i], color="green", lw=lw)
+	else:
+		line, = ax.plot(xscale*X, 2*i + data['spec'][i], color="yellow", lw=lw)
 	lines.append(line)
 
+ax.set_ylim(LWR_BND, 1000)
+ax_t.set_axis_bgcolor('grey')
+ax.set_axis_bgcolor('brown')
 
-#ax.set_ylim(LWR_BND, data['max_sig_val']+1)
-ax.set_ylim(LWR_BND, 100)
-
-
-anim = animation.FuncAnimation(fig, engine, fargs=([data]), interval=30)
+anim = animation.FuncAnimation(fig, engine, fargs=([data]), interval=1)
 
 plt.show()
-
-# while(True):
-# 	engine(1,data)
-
-
-
 
