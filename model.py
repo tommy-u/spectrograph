@@ -4,14 +4,13 @@ animated graphs and an audio signal.
 """
 
 import numpy as np
-#for animation
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
 LEN_TRACE_VIS = 256	#How much of trace to show
 LEN_TRACE_WIN = 30	#Size of the FFT window
 SPEC_MAX_TIME = 50  #Time to show on spectrogram
-SPREAD        = 40	#Distance between spec lines
+SPREAD        = 20	#Distance between spec lines
 LEN_NON_WIN = LEN_TRACE_VIS - LEN_TRACE_WIN	
 
 assert LEN_TRACE_VIS > 0 
@@ -24,14 +23,13 @@ def initialize( ):
 	Prepairs all data arrays for the animation loop.
 	Returns them in a dictionary.
 	"""
-
 	#Signal
 	# the_sig = get_the_sig()
-	#longest sequence up to 100 M. 949 steps
-	the_sig = get_the_collatz(63728127)
-	the_sig = np.log(the_sig)
+	the_sig = get_the_collatz(63728127) #Long Collatz seq
+	the_sig = np.log(the_sig) #Reduce to smaller range
+
 	#double length
-	the_sig = np.concatenate( [the_sig, the_sig] )
+#	the_sig = np.concatenate( [the_sig, the_sig] )
 
 	max_sig_val = np.amax( the_sig )
 
@@ -114,7 +112,7 @@ def engine(i,data):
 	#This is only to make visualization easier.
 	#log of magnitudes
 #	data['trace_win_fft'] = np.log( data['trace_win_fft'] )
-	data['trace_win_fft'] = data['trace_win_fft'] 
+	#data['trace_win_fft'] = data['trace_win_fft'] 
 
 	#Fill every element of the spec with one element from the fft.
 	data['spec'] = np.c_[data['spec'], data['trace_win_fft']]	
@@ -126,7 +124,7 @@ def printout(data):
 #For backend
 data = initialize()
 
-fig  = plt.figure(figsize=(12, 10), facecolor='brown')
+fig  = plt.figure(figsize=(12, 10), facecolor='white')
 
 ax_t = plt.subplot2grid( (2,1), (0,0) )
 ax   = plt.subplot2grid( (2,1), (1,0) )
@@ -151,12 +149,13 @@ for i in range(len(data['spec'])):
 	if i == 0:
 		line, = ax.plot(xscale*X, 2*i + data['spec'][i], color="green", lw=lw)
 	else:
-		line, = ax.plot(xscale*X, 2*i + data['spec'][i], color="yellow", lw=lw)
-	lines.append(line)
+		line, = ax.plot(xscale*X, 2*i + data['spec'][i], color="brown", lw=lw)
 
-ax.set_ylim(LWR_BND, 1000)
+	lines.append(line)
+ax.grid(True)
+ax.set_ylim(LWR_BND, 350)
 ax_t.set_axis_bgcolor('grey')
-ax.set_axis_bgcolor('brown')
+ax.set_axis_bgcolor('grey')
 
 anim = animation.FuncAnimation(fig, engine, fargs=([data]), interval=1)
 
