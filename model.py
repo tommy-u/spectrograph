@@ -6,6 +6,8 @@ animated graphs and an audio signal.
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
+import pyaudio 
+import math
 
 LEN_TRACE_VIS = 256	#How much of trace to show
 LEN_TRACE_WIN = 30	#Size of the FFT window
@@ -47,6 +49,10 @@ def initialize( ):
 	trace_win_fft = np.zeros( LEN_TRACE_WIN )
 	tone = 0
 
+	#prep audio component
+	p = pyaudio.PyAudio()
+	stream = p.open(format=pyaudio.paFloat32,channels=1, rate=44100, output=1)
+
 	return {
 	'the_sig'       : the_sig, 
 	'spec'          : spec,
@@ -54,7 +60,8 @@ def initialize( ):
 	'trace_vis'     : trace_vis,
 	'trace_win_fft' : trace_win_fft,
 	'tone'          : tone,
-	'max_sig_val'   : max_sig_val
+	'max_sig_val'   : max_sig_val,
+	'stream'        : stream
 	}
 
 def get_the_sig():
@@ -98,6 +105,7 @@ def engine(i,data):
 
 	#tone
 	data['tone'] = fill / data['max_sig_val'] 
+	play_tone(data['stream'], data['tone'] * 500 + 30)
 
 	#vis
 	fill = data['the_sig'][LEN_NON_WIN] if ( np.size( data['the_sig'] ) > LEN_NON_WIN ) else 0
@@ -108,7 +116,7 @@ def engine(i,data):
 	
 	#calc fft window sig
 	data['trace_win_fft'] = np.abs( np.fft.rfft ( data['trace_win'] ) )
-	
+
 	#This is only to make visualization easier.
 	#log of magnitudes
 #	data['trace_win_fft'] = np.log( data['trace_win_fft'] )
@@ -120,6 +128,17 @@ def engine(i,data):
 def printout(data):
 	for key, value in data.items():
 		print(key, value)
+
+def sine(frequency, length, rate):
+	length = int(length * rate)
+	factor = float(frequency) * (math.pi * 2) / rate
+	return np.sin(np.arange(length) * factor)
+
+def play_tone(stream, frequency, length=.1, rate=44100):
+	chunks = []
+	chunks.append(sine(frequency, length, rate))
+	chunk = np.concatenate(chunks) * 0.25
+	stream.write(chunk.astype(np.float32).tostring())
 
 #For backend
 data = initialize()
