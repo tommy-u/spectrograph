@@ -27,4 +27,4 @@ def play_chord(stream, amp, length=.1, rate=44100):
         freq = freq[1:]
         amp = amp[1:]
 
-        stream.write(chord.astype(np.float32).tostring())
+    stream.write(chord.astype(np.float32).tostring())
