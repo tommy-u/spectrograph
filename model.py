@@ -29,7 +29,7 @@ def initialize( ):
 	# the_sig = get_the_sig()
 	the_sig = get_the_collatz(63728127) #Long Collatz seq
 	the_sig = np.log(the_sig) #Reduce to smaller range
-
+	# the_sig = the_sig[::-1]
 	#double length
 #	the_sig = np.concatenate( [the_sig, the_sig] )
 
@@ -105,7 +105,10 @@ def engine(i,data):
 
 	#tone
 	data['tone'] = fill / data['max_sig_val'] 
-	play_tone(data['stream'], data['tone'] * 500 + 30)
+	# play_tone(data['stream'], data['tone'] * 500 + 30)
+
+	chord = data['spec'][:, data['spec'].shape[1]-1 ][1:]
+	play_chord( data['stream'], chord )
 
 	#vis
 	fill = data['the_sig'][LEN_NON_WIN] if ( np.size( data['the_sig'] ) > LEN_NON_WIN ) else 0
@@ -134,11 +137,33 @@ def sine(frequency, length, rate):
 	factor = float(frequency) * (math.pi * 2) / rate
 	return np.sin(np.arange(length) * factor)
 
+def sine2(frequency, amp, length, rate):
+	length = int(length * rate)
+	factor = float(frequency) * (math.pi * 2) / rate
+	return amp * np.sin(np.arange(length) * factor)
+
 def play_tone(stream, frequency, length=.1, rate=44100):
 	chunks = []
 	chunks.append(sine(frequency, length, rate))
 	chunk = np.concatenate(chunks) * 0.25
 	stream.write(chunk.astype(np.float32).tostring())
+
+def play_chord(stream, amp, length=.1, rate=44100):
+	freq = np.linspace(200,3000,len(amp))
+	
+	chord = []
+
+	while len(freq) != 0:
+		tmp = []
+		tmp.append(sine2(freq[0], amp[0], length, rate))
+		if chord == []:
+			chord = np.concatenate(tmp) 
+		else:
+			chord += np.concatenate(tmp) 
+		freq = freq[1:]
+		amp = amp[1:]
+
+	stream.write(chord.astype(np.float32).tostring())
 
 #For backend
 data = initialize()
@@ -168,7 +193,7 @@ for i in range(len(data['spec'])):
 	if i == 0:
 		line, = ax.plot(xscale*X, 2*i + data['spec'][i], color="green", lw=lw)
 	else:
-		line, = ax.plot(xscale*X, 2*i + data['spec'][i], color="brown", lw=lw)
+		line, = ax.plot(xscale*X, 2*i + data['spec'][i], color="cyan", lw=lw)
 
 	lines.append(line)
 ax.grid(True)
