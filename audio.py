@@ -38,9 +38,9 @@ def play_chord(stream, amp, length=.1, rate=44100):
         tmp = []
         tmp.append(sin(freq[0], amp[0], length, rate))
         if chord == []:
-            chord = np.concatenate(tmp) 
+            chord = np.concatenate(tmp)
         else:
-            chord += np.concatenate(tmp) 
+            chord += np.concatenate(tmp)
         freq = freq[1:]
         amp = amp[1:]
 

@@ -36,7 +36,7 @@ def init_backend(params):
 
     #
     trace_vis = np.zeros(params['LEN_TRACE_WIN'])
-    trace_vis = np.append (
+    trace_vis = np.append(
         trace_vis,
         the_sig[: params['LEN_TRACE_VIS'] - params['LEN_TRACE_WIN']])
 
@@ -128,40 +128,43 @@ def engine(i, data, params):
     The loop that updates the data and redraws the plots.
     """
 
-    #Trace animation.
+    #Redraw trace animation.
     data['line_t'].set_ydata(data['trace_vis'])
 
-    #Spectrogram animation.
+    #Redraw spectrogram animation.
     for i in range(len(data['lines'])):
         data['lines'][i].set_ydata(data['spec'][i] + params['SPREAD'] * i)
 
-    #Remove oldest data.
+    #Remove oldest data from backend.
     data['trace_win'] = np.delete(data['trace_win'], 0)
     data['trace_vis'] = np.delete(data['trace_vis'], 0)
-
-    #Deletes from every line.
+    #Deletes col 1 of spectogram matrix.
     data['spec'] = np.delete(data['spec'], 0, 1)
 
-    #win
+    #What to append into the transform window, more signal or 0's at end.
     fill = data['the_sig'][0] if (np.size(data['the_sig']) > 0) else 0
     data['trace_win'] = np.append(data['trace_win'], fill)
 
-    #tone
+    #Play audio component.
     data['tone'] = fill / data['max_sig_val']
+
+    #Plays tone proportional to time varying signal.
     #audio.play_tone(data['stream'], data['tone'] * 500 + 30)
+    #Plays chord with components equal to the magnitude of the transform coefficients.
     chord = data['spec'][:, data['spec'].shape[1]-1][1:]
     audio.play_chord(data['stream'], chord)
 
-    #vis
-    fill = data['the_sig'][params['LEN_TRACE_VIS'] - params['LEN_TRACE_WIN']] if (np.size(data['the_sig']) > params['LEN_TRACE_VIS'] - params['LEN_TRACE_WIN']) else 0
+    #Pull next element out of signal that's not yet visible, add it to the trace.
+    len_non_win = params['LEN_TRACE_VIS'] - params['LEN_TRACE_WIN']
+    fill = data['the_sig'][len_non_win] if (np.size(data['the_sig']) > len_non_win) else 0
     data['trace_vis'] = np.append(data['trace_vis'], fill)
 
-    #data['the_sig']
-    if np.size(data['the_sig']) > 0: 
+    #Removes oldest element of the signal.
+    if np.size(data['the_sig']) > 0:
         data['the_sig'] = np.delete(data['the_sig'], 0)
 
-    #calc fft window sig
+    #Calc rfft of the window.
     data['trace_win_fft'] = np.abs(np.fft.rfft(data['trace_win']))
 
-    #Fill every element of the spec with one element from the fft.
-    data['spec'] = np.c_[data['spec'], data['trace_win_fft']]   
+    #Append the vector of fourier components to the spectrogram.
+    data['spec'] = np.c_[data['spec'], data['trace_win_fft']]

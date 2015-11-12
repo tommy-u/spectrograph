@@ -8,7 +8,7 @@ def get_the_saw():
     """
     Synthetic example. Returns a saw tooth wave.
     """
-    return np.fromiter( (x%100 for x in range(1,5000)) , int )
+    return np.fromiter((x%100 for x in range(1, 5000)), int)
 
 def collatz_sequence(seq, col):
     """
