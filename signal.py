@@ -6,7 +6,7 @@ def get_the_saw():
     """
     return np.fromiter( (x%100 for x in range(1,5000)) , int )
 
-def get_the_collatz(x):
+def get_the_collatz(x=63728127):
     seq = []
     seq = collatz_sequence(seq, x)
     return np.asarray(seq)

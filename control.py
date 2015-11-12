@@ -1,3 +1,5 @@
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
 import my_sig
 import numpy as np
 import pyaudio 
@@ -8,7 +10,7 @@ def printout(data):
 	for key, value in data.items():
 		print(key, value)
 
-def initialize( PARAMS ):
+def init_backend( PARAMS ):
 	"""
 	Prepairs all data arrays for the animation loop.
 	Returns them in a dictionary.
@@ -48,6 +50,58 @@ def initialize( PARAMS ):
 	'stream'        : stream
 	}
 
+def init_frontend( PARAMS, data ):
+	#Plots
+	fig  = plt.figure(figsize=(12, 10), facecolor='white')
+	#1d signal trace
+	ax_t = plt.subplot2grid( (2,1), (0,0) )
+	#Spectrogram
+	ax   = plt.subplot2grid( (2,1), (1,0) )
+	
+	line_t, = ax_t.plot(np.zeros(PARAMS['LEN_TRACE_VIS']), color="blue")
+	
+	PARAMS['LWR_BND'] = -1
+	
+	ax_t.set_ylim(PARAMS['LWR_BND'], data['max_sig_val']+1)
+	
+	#green line specifying where transform window occurs
+	ax_t.plot((PARAMS['LEN_TRACE_WIN'], PARAMS['LEN_TRACE_WIN'] ), (PARAMS['LWR_BND'], data['max_sig_val']+1 ), 'g-')
+	
+	X = np.linspace(0, 1, PARAMS['SPEC_MAX_TIME'])
+	
+	lines = []
+	for i in range(len(data['spec'])):
+		#perspective trick
+		xscale = 1 - i / 200
+		lw = 1.5 - i / 100
+		if i == 0:
+			line, = ax.plot(xscale*X, 2*i + data['spec'][i], color="green", lw=lw)
+		else:
+			line, = ax.plot(xscale*X, 2*i + data['spec'][i], color="cyan", lw=lw)
+	
+		lines.append(line)
+	
+	ax.grid(True)
+	ax.set_ylim(PARAMS['LWR_BND'], 350)
+	ax_t.set_axis_bgcolor('grey')
+	ax.set_axis_bgcolor('grey')
+	
+	data['line_t'] = line_t
+	data['lines'] = lines
+	data['fig'] = fig
+	return data
+
+def run():
+	plt.show()
+
+def initialize( PARAMS ):
+	data = init_backend( PARAMS )
+	data = init_frontend( PARAMS, data )
+
+	animation.FuncAnimation( data['fig'], engine, fargs=([data, PARAMS]), interval=1)
+	
+	return data
+	
 def engine(i,data, PARAMS):	
 	#Trace animation.
 	data['line_t'].set_ydata( data['trace_vis'] )
