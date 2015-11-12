@@ -3,7 +3,6 @@ This is a small audio/visualization tool. It creates two
 animated graphs and an audio the_sig.
 """
 
-import matplotlib.animation as animation
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -24,6 +23,8 @@ assert PARAMS['LEN_TRACE_WIN'] > 0
 assert PARAMS['SPEC_MAX_TIME'] > 0 
 assert PARAMS['LEN_TRACE_WIN'] <= PARAMS['LEN_TRACE_VIS']
 
-#For backend
+#Prep animation.
 control.initialize(PARAMS)
+
+#Kickoff.
 control.run()

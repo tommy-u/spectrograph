@@ -7,6 +7,9 @@ import pyaudio
 import audio
 
 def printout(data):
+	"""
+	For debugging backend values.
+	"""
 	for key, value in data.items():
 		print(key, value)
 
@@ -16,7 +19,7 @@ def init_backend( PARAMS ):
 	Returns them in a dictionary.
 	"""
 	#Collect Signal
-	the_sig = my_sig.get_the_collatz(63728127) #Long Collatz seq
+	the_sig = my_sig.get_the_collatz() #Long Collatz seq
 	the_sig = np.log(the_sig) #Reduce to smaller range
 
 	max_sig_val = np.amax( the_sig )
@@ -51,6 +54,9 @@ def init_backend( PARAMS ):
 	}
 
 def init_frontend( PARAMS, data ):
+	"""
+	Prepairs the two visuals, a trace, and a spectrogram.
+	"""
 	#Plots
 	fig  = plt.figure(figsize=(12, 10), facecolor='white')
 	#1d signal trace
@@ -86,15 +92,22 @@ def init_frontend( PARAMS, data ):
 	ax_t.set_axis_bgcolor('grey')
 	ax.set_axis_bgcolor('grey')
 	
+	#Add frontend data. 
 	data['line_t'] = line_t
 	data['lines'] = lines
 	data['fig'] = fig
 	return data
 
 def run():
+	"""
+	Starts the animation.
+	"""
 	plt.show()
 
 def initialize( PARAMS ):
+	"""
+	Prepairs the back and front ends to create animation.
+	"""
 	data = init_backend( PARAMS )
 	data = init_frontend( PARAMS, data )
 
@@ -103,6 +116,10 @@ def initialize( PARAMS ):
 	return data
 	
 def engine(i,data, PARAMS):	
+	"""
+	The loop that updates the data and redraws the plots.
+	"""
+
 	#Trace animation.
 	data['line_t'].set_ydata( data['trace_vis'] )
 

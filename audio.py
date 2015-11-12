@@ -2,17 +2,23 @@ import numpy as np
 
 import math
 def sin(frequency, amp, length, rate):
+    """
+    """
     length = int(length * rate)
     factor = float(frequency) * (math.pi * 2) / rate
     return amp * np.sin(np.arange(length) * factor)
 
 def play_tone(stream, frequency, length=.1, rate=44100):
+    """
+    """
     chunks = []
     chunks.append(sin(frequency, 1, length, rate))
     chunk = np.concatenate(chunks) * 0.25
     stream.write(chunk.astype(np.float32).tostring())
 
 def play_chord(stream, amp, length=.1, rate=44100):
+    """
+    """
     freq = np.linspace(200,3000,len(amp))
     
     chord = []
