@@ -21,8 +21,10 @@ def init_backend(params):
     Returns them in a dictionary.
     """
     #Collect Signal
-    the_sig = my_sig.get_the_collatz() #Long Collatz seq
-    the_sig = np.log(the_sig) #Reduce to smaller range
+#    the_sig = my_sig.get_the_sea_level_pressure()
+    the_sig = my_sig.get_the_soi()
+#    the_sig = my_sig.get_the_collatz() #Long Collatz seq
+#    the_sig = np.log(the_sig) #Reduce to smaller range
     max_sig_val = np.amax(the_sig)
 
     #Spectrogram 2d array amplitudes of various frequencies fn time.
