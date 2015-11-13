@@ -1,7 +1,6 @@
 """
 This module allows for the creation of various signals.
 """
-
 import numpy as np
 
 def get_the_saw():
