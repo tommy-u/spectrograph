@@ -11,3 +11,6 @@ numpy
 matplotlib
 math
 pyaudio
+
+Run with:
+python run.py
