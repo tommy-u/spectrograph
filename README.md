@@ -1,6 +1,5 @@
 # spectrograph
 Simple python tool for creating animated audio/visual spectrograms.
-Turn your speakers down, it currently sounds like satan. 
 
 Developed on:
 
